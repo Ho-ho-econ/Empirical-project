@@ -30,6 +30,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(foreign)
 library(ggplot2)
+library(ROCR)
 ```
 
 
@@ -118,6 +119,58 @@ creating a binary variable arr86, when a person gets arrested at least once.
 ```{r}
 df$arr86 <- ifelse(df$narr86>0 ,1 ,0)
 ```
+
+```{r}
+log_all <- glm(arr86 ~ pcnv + avgsen + tottime + ptime86 + qemp86 + inc86 + durat + black + hispan + born60 + pcnvsq + pt86sq + inc86sq , data = df, family=binomial(link = "logit"))
+
+summary(log_all)
+```
+```{r}
+log <- glm(arr86 ~   ptime86 + qemp86 + inc86  + black + hispan + pcnvsq + pt86sq + inc86sq , data = df, family=binomial(link = "logit"))
+
+summary(log)
+```
+
+For comparison
+```{r}
+prob <- glm(arr86 ~   ptime86 + qemp86 + inc86  + black + hispan + pcnvsq + pt86sq + inc86sq , data = df, family=binomial(link = "probit"))
+
+summary(prob)
+```
+
+## Calculation of MC Faddens pseudo R^2
+```{r}
+1-(2875.7/3216.4)
+```
+
+
+
+## parameter logit probit check
+prob/log
+slide 21 ... factor 1.6
+
+##Average marginal effect
+```{r}
+# for logit
+fav <- mean(dnorm(predict(log,type="link")))
+fav*coef(log)
+```
+
+## Predicition of cutoff
+```{r}
+
+```
+
+
+## ROC
+```{r}
+pred <- prediction(fitted(log),df$arr86)
+plot(performance(pred, "acc"))
+
+plot(performance(pred,"tpr", "fpr"))
+abline(0,1,lty=2)
+```
+
 
 
 ## Truncated model, let's see
