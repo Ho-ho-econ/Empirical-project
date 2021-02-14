@@ -39,6 +39,7 @@ from Wooldridge, his source: J. Grogger (1991), “Certainty vs. Severity of Pun
 29, 297-309.
 ```{r}
 df<-read.dta("http://fmwww.bc.edu/ec-p/data/wooldridge/crime1.dta")
+attach(df)
 head(df)
 str(df)
 summary(df)
@@ -79,8 +80,8 @@ plot(narr86, avgsen, main = "Correlation, crime 1986", xlab= "times arrested", y
 ```
 
 ```{r, echo=FALSE}
-barplot(table(ifelse(df$black==1,df$narr86,NA)), xlab = "narr", ylab = "amount", main = "Histogram Black/White", col="blue")
-barplot(table(ifelse(df$black==0,df$narr86,NA)), xlab = "narr", ylab = "amount", main = "Histogram Black/White", col="red")
+barplot(table(ifelse(df$black==1,df$narr86,NA)), xlab = "times arrested", ylab = "amount", main = "Histogram Black/White", col="blue")
+barplot(table(ifelse(df$black==0,df$narr86,NA)), xlab = "times arrested", ylab = "amount", main = "Histogram Black/White", col="red")
 ```
 
 ## Simple OLS Regression, LPM
@@ -140,7 +141,7 @@ summary(prob)
 
 ## Calculation of MC Faddens pseudo R^2
 ```{r}
-1-(2875.7/3216.4)
+1-(prob$deviance/prob$null.deviance)
 ```
 
 
