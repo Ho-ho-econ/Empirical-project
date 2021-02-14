@@ -31,6 +31,7 @@ library(tidyverse)
 library(foreign)
 library(ggplot2)
 library(ROCR)
+library(ivpack)
 ```
 
 
@@ -83,6 +84,84 @@ plot(narr86, avgsen, main = "Correlation, crime 1986", xlab= "times arrested", y
 barplot(table(ifelse(df$black==1,df$narr86,NA)), xlab = "times arrested", ylab = "amount", main = "Histogram Black/White", col="blue")
 barplot(table(ifelse(df$black==0,df$narr86,NA)), xlab = "times arrested", ylab = "amount", main = "Histogram Black/White", col="red")
 ```
+
+######################################
+#############Georgi###################
+######################################
+
+### Working on "avgsen"
+The idea is to build a model estimating expected severity of conviction when arrested in 1986 using level of income, employment, total time spend in prison and color (black ad non-black) of the arrested. Hypothesis, which are to be tested, are that the coefficient of every single variable is equal to 0.
+
+
+#### Linear Model
+
+The average severity is regressed on the above mentioned variables.
+```{r,include=TRUE}
+lm_sev2<-lm(avgsen~ tottime+ black+ qemp86+ inc86, data = df) 
+
+```
+An output of an OLS-Estimation is given:
+```{r}
+summary((lm_sev2))
+```
+##### Interpretation of the OLS output
+
+We see a high R-squared. The significant variables for 0.05 significance level are the total time spend in prison and the color. No significance of the other variables is proven.
+
+##### Problems with the OLS 
+Some of the variables may be ednogenuos.
+=> Testing  this way may not be correct.
+
+#### IV Regression
+The idea is to use instrumental variables in the estimation of the expected severity.
+Define:
+endogenuos var: income86, qemp86, tottime
+exogenuos var: black
+instruments: durat, nparr, nfarr, narr, ptime86
+
+The regression code is given by:
+```{r, include=TRUE}
+IV_sev1<-ivreg(avgsen~ tottime+ black+ qemp86+ inc86 | black+ durat+ narr86+ nfarr86+ nparr86+ ptime86  ,data=df)
+```
+
+
+##### Check if Instuments are adequate
+1. Check if regressors and instruments are correlated
+```{r ,include=TRUE}
+i1lm_sev1<- lm(tottime~ black+ durat+ narr86+ nfarr86+ nparr86+ ptime86, data=df)
+summary(i1lm_sev1)
+
+i2lm_sev1<- lm(qemp86~ black+ durat+ narr86+ nfarr86+ nparr86+ ptime86, data=df)
+summary(i2lm_sev1)
+
+i3lm_sev1<- lm( inc86~ black+ durat+ narr86+ nfarr86+ nparr86+ ptime86, data=df)
+summary(i3lm_sev1)
+```
+
+Multiple r-squared > 0 is observed in every regression => first criterion is met.  
+
+2. Check if errors and instruments are uncorrelated.
+```{r, include=TRUE}
+resid_sev1<-resid(IV_sev1)
+lm_resid_sev1<-lm(resid_sev1~black+ durat+ narr86+ nfarr86+ nparr86+ ptime86, data=df)
+summary(lm_resid_sev1)
+```
+A really small multiple R-squared is observed. The p-values of variables are considerably higher than 0.05 significance level. 
+What can be done in addition is a test on  $n*R^{2}, where R^{2} is the non-centered R^{2}
+```{r, include=TRUE}
+0.0008356*2725
+```
+Which is smaller than the Chi-square value on 2 df and 0.05 significanse level=> also the second criterion is met. 
+
+#####Summary of the IV-Model
+```{r, include=TRUE}
+summary(IV_sev1)
+```
+Here a high R-squared is observed. Tottime and Black are the only significant variables.
+
+######################################
+#############Georgi###################
+######################################
 
 ## Simple OLS Regression, LPM
 
