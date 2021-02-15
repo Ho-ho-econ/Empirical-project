@@ -3,7 +3,6 @@ title: Microeconometrics, Empirical project, Group 8
 author:
 - Atanasov Georgi^[student ID 11776393]
 - Fitter Jonathan^[student ID 11709902]
-- Geyer Niklas^[student ID]
 - Hochholzer Matthias^[student ID  11724853]
 - Woharcik Verena^[student ID]
 date: 7th February 2021
