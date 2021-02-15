@@ -1,23 +1,26 @@
 ---
-title: Microeconometrics, Empirical project, Group 8
+title: "Microeconometrics, Empirical project, Group 8"
 author:
 - Atanasov Georgi^[student ID 11776393]
 - Fitter Jonathan^[student ID 11709902]
 - Hochholzer Matthias^[student ID  11724853]
 - Woharcik Verena^[student ID]
-date: 7th February 2021
+date: "7th February 2021"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
 header-includes:
 - \usepackage{fancyhdr}
 - \usepackage{lastpage}
 - \usepackage{graphicx}
 - \pagestyle{fancy}
 - \fancypagestyle{plain}{\pagestyle{fancy}}
-- \fancyhead[L]{Empirical project} 
-- \fancyhead[R]{\thepage\ of \pageref{LastPage}} 
-- \fancyfoot[R]{\includegraphics[width=3cm]{Uni_Logo_blau.png}} 
+- \fancyhead[L]{Empirical project}
+- \fancyhead[R]{\thepage\ of \pageref{LastPage}}
+- \fancyfoot[R]{\includegraphics[width=3cm]{Uni_Logo_blau.png}}
 - \fancyfoot[C]{}
 - \setlength{\footskip}{46.27646pt}
-output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -152,7 +155,8 @@ summary(lm_resid_sev1)
 A really small multiple R-squared is observed. The p-values of variables are considerably higher than 0.05 significance level. 
 What can be done in addition is a test on $$ n*R^{2} $$ , where  $$ R^{2}$$ is the non-centered $$ R^{2} $$ 
 ```{r, include=TRUE}
-0.0008356*2725
+summary(lm_resid_sev1)$r.squared*length(resid_sev1)
+
 ```
 Which is smaller than the Chi-square value on 2 df and 0.05 significanse level=> also the second criterion is met. 
 
@@ -224,9 +228,13 @@ r_prob<- 1-(prob$deviance/prob$null.deviance)
 MC Faddens pseudo R^2 for Logit is `r_log` and for Probit it is `r_prob`.
 
 
-## parameter logit probit check, for "ptime86"
+## Scaling of probit to logit (ptime86)
 ```{r}
+<<<<<<< HEAD
 factor_log_prob <- 1.251e+00/7.387e-01
+=======
+(log$coefficients[2]/prob$coefficients[2])
+>>>>>>> 5827e4e68e8cb79f82131cd89c355b66fe1788dd
 ```
 slide 21 ... factor 1.6
 The factor between our Probit and Logit is `factor_log_prob`
@@ -282,22 +290,22 @@ margins.oglmx(results.oprob,ascontinuous = TRUE)
 ##WORK IN PROGRESS:Alternative model with fixed thresholds (restrictions)
 ```{r}
 
-results.oprob1<-oglmx(y ~ x1 + x2, ~ x1 + x2, data=sampleframe,
-                        constantMEAN = FALSE, constantSD = FALSE)
+#results.oprob1<-oglmx(y ~ x1 + x2, ~ x1 + x2, data=df,
+#                        constantMEAN = FALSE, constantSD = FALSE)
 "Alternative model with fixed thresholds"
 
-results.oprob1alt<-oglmx(y ~ x1 + x2, ~ x1 + x2, data=sampleframe,
-                        constantMEAN = TRUE, constantSD = TRUE,
-                        threshparam=c(-0.5,NA,1.5))
-summary(results.oprob1)
-summary(results.oprob1alt)
+#results.oprob1alt<-oglmx(y ~ x1 + x2, ~ x1 + x2, data=df,
+#                        constantMEAN = TRUE, constantSD = TRUE,
+#                        threshparam=c(-0.5,NA,1.5))
+#summary(results.oprob1)
+#summary(results.oprob1alt)
 ```
 
 ##WORK IN PROGRESS:Some Testing
 ```{r}
 library("lmtest")
 
-lrtest(results.oprob,results.oprobalt)
+#lrtest(results.oprob,results.oprobalt)
 ```
 ## Truncated model, let's see
 
