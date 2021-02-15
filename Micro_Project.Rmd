@@ -239,7 +239,7 @@ fav*coef(log)
 
 ## Predicition of cutoff
 ```{r}
-tab <- table(true= df$arr86, pred= round(fitted(log)))
+tab <- table(true= df$arr86, pred= ifelse(fitted(log)>0.5,1,0))
 tab
 
 tabp <-round(100* c(tab[1,1]+tab[2,2], tab[2,1]+ tab[1,2]/sum(tab)), digits = 2)
@@ -251,6 +251,10 @@ tabp
 ```{r}
 pred <- prediction(fitted(log),df$arr86)
 plot(performance(pred, "acc"))
+
+# adjusted cutoff value ... 0.3
+tab_cut <- table(true= df$arr86, pred= ifelse(fitted(log)>0.3,1,0))
+tab_cut
 
 plot(performance(pred,"tpr", "fpr"))
 abline(0,1,lty=2)
