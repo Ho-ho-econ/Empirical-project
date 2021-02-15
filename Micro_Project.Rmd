@@ -245,7 +245,10 @@ $$ Pr(arr86=1|X) = \frac{exp(\beta_0 + \beta_1\ pcnv + \beta_2\ ptime86 +  \beta
 log <- glm(arr86 ~   ptime86 + qemp86 + inc86  + black + hispan + pcnvsq + pt86sq + inc86sq , data = df, family=binomial(link = "logit"))
 
 summary(log)
+
 ```
+
+
 
 For comparison the probit model wih same regressors
 ```{r}
@@ -264,16 +267,19 @@ MC Faddens pseudo R^2 for Logit is `r_log` and for Probit it is `r_prob`.
 
 
 ## Scaling of probit to logit (ptime86)
-```{r}
+```{r, include=FALSE}
 factor_log_prob<- (log$coefficients[2]/prob$coefficients[2])
 factor_log_prob
 ```
 slide 21 ... factor 1.6
 The factor between our Probit and Logit is `factor_log_prob`
 
-##Average marginal effect fo Logit
+##Interpretation of Coefficients: Odds and Average-Marginal-Effects
 ```{r}
 # for logit
+odds<- exp(log$coefficients)
+odds
+
 fav <- mean(dnorm(predict(log,type="link")))
 fav*coef(log)
 ```
@@ -283,10 +289,20 @@ fav*coef(log)
 tab <- table(true= df$arr86, pred= ifelse(fitted(log)>0.5,1,0))
 tab
 
-tabp <-round(100* c(tab[1,1]+tab[2,2], tab[2,1]+ tab[1,2]/sum(tab)), digits = 2)
-tabp
-```
+TP<-tab[2,2]
+FP<-tab[2,1]
+FN<-tab[1,2]
+TN<-tab[1,1]
 
+accuracy=(TP+TN)/length(narr86)
+specificity<-TN/(FP+TN)
+sensitivity<-TP/(TP+FN)
+```
+h accuracy = `r accuracy`, $h_0$ specificity = `r specificity` and $h_1$ sensitivity = `r sensitivity`
+
+############
+####### IMPROVE CUTOFF BY CONSIDERING SPEC/SENS ########
+###########
 
 ## ROC
 ```{r}
