@@ -156,7 +156,8 @@ summary(lm_resid_sev1)
 A really small multiple R-squared is observed. The p-values of variables are considerably higher than 0.05 significance level. 
 What can be done in addition is a test on $$ n*R^{2} $$ , where  $$ R^{2}$$ is the non-centered $$ R^{2} $$ 
 ```{r, include=TRUE}
-0.0008356*2725
+summary(lm_resid_sev1)$r.squared*length(resid_sev1)
+
 ```
 Which is smaller than the Chi-square value on 2 df and 0.05 significanse level=> also the second criterion is met. 
 
@@ -218,9 +219,9 @@ summary(prob)
 1-(prob$deviance/prob$null.deviance)
 ```
 
-## parameter logit probit check, for "ptime86"
+## Scaling of probit to logit (ptime86)
 ```{r}
-1.251e+00/7.387e-01
+(log$coefficients[2]/prob$coefficients[2])
 ```
 slide 21 ... factor 1.6
 
