@@ -176,7 +176,7 @@ ols_all <- lm(narr86 ~ pcnv + avgsen + tottime + ptime86 + qemp86 + inc86 + dura
 summary(ols_all)
 ```
 
-### Model:
+## Chosen Model:
 $$ narr86 = \beta_0 + \beta_1\ pcnv + \beta_2\ ptime86 +  \beta_3\ inc86 +  \beta_4\ black +  \beta_5\ hispan +  \beta_6\ pcnvsq+ \beta_7\ pt86sq+ \beta_8\ inc86sq   $$
 
 ```{r, echo=FALSE}
@@ -184,17 +184,6 @@ $$ narr86 = \beta_0 + \beta_1\ pcnv + \beta_2\ ptime86 +  \beta_3\ inc86 +  \bet
 ols <- lm(narr86 ~ pcnv + ptime86 + inc86 + black + hispan + pcnvsq + pt86sq + inc86sq  , data=df)
 summary(ols)
 ```
-
-## IV Regression
-
-### Model:
-
-
-
-### Generalized IV estimation
-
-
-### 2SLS estimation
 
 
 ## LOGIT model
@@ -225,7 +214,6 @@ summary(prob)
 ```{r}
 1-(prob$deviance/prob$null.deviance)
 ```
-
 
 ## parameter logit probit check, for "ptime86"
 ```{r}
