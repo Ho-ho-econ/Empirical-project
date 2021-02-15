@@ -153,6 +153,7 @@ IV_sev1<-ivreg(avgsen~ tottime+ black+ qemp86+ inc86 | black+ durat+ narr86+ nfa
 summary(IV_sev1, diagnostics=TRUE)
 ```
 INTERPRETATION:
+Here a high R-squared is observed. Tottime and black are the only significant variables.
 ######################
 #####################
 ######################
@@ -177,27 +178,18 @@ resid_sev1<-resid(IV_sev1)
 lm_resid_sev1<-lm(resid_sev1~black+ durat+ narr86+ nfarr86+ nparr86+ ptime86, data=df)
 summary(lm_resid_sev1)
 ```
-A really small multiple R-squared is observed. The p-values of variables are considerably higher than 0.05 significance level. 
-What can be done in addition is a test on $$ n*R^{2} $$ , where  $$ R^{2}$$ is the non-centered $$ R^{2} $$ 
+A really small R-squared is observed. The p-values of variables are considerably higher than 0.05 significance level. 
+
+What can be done in addition is a test on $ n*R^{2} $ , where  $ R^{2} $ is the non-centered $ R^{2} $ ($ R^{2} $ used)
 ```{r, include=TRUE}
 summary(lm_resid_sev1)$r.squared*length(resid_sev1)
-
 ```
 Which is smaller than the Chi-square value on 2 df and 0.05 significanse level=> also the second criterion is met. 
 
-####Summary of the IV-Model
-```{r, include=TRUE}
-summary(IV_sev1)
-```
-Here a high R-squared is observed. Tottime and black are the only significant variables.
-######################################
-#############Georgi###################
-######################################
 
 
-
-#PART 2
-
+# PART 2
+We test significant variables on the probability of arrest in 1986. !!!Hypothesis
 
 ## Simple OLS Regression, LPM
 
@@ -206,18 +198,31 @@ Here a high R-squared is observed. Tottime and black are the only significant va
 ```{r, echo=FALSE}
 # with all viariables
 ols_all <- lm(narr86 ~ pcnv + avgsen + tottime + ptime86 + qemp86 + inc86 + durat + black + hispan + born60 + pcnvsq + pt86sq + inc86sq , data=df)
+
 summary(ols_all)
 ```
 
+
 ### Chosen Model:
+
+omitting insignificant variables:
+
 $$ narr86 = \beta_0 + \beta_1\ pcnv + \beta_2\ ptime86 +  \beta_3\ inc86 +  \beta_4\ black +  \beta_5\ hispan +  \beta_6\ pcnvsq+ \beta_7\ pt86sq+ \beta_8\ inc86sq   $$
 
 ```{r, echo=FALSE}
 #with chosen variables
 ols <- lm(narr86 ~ pcnv + ptime86 + inc86 + black + hispan + pcnvsq + pt86sq + inc86sq  , data=df)
 summary(ols)
+#becuase of problems
+robust.se(ols)
 ```
 
+Interpretation:
+First to notice is the neglection of parameter restrictions:E.g. negative values cannot easily be interpreted in this scenario.
+
+Although OLS yiels unbiased estimators, heteroskedasticity among other things leads to inefficient ones. 
+
+Additionally: Errors also not normal
 
 ## LOGIT model
 creating a binary variable arr86, when a person gets arrested at least once.
