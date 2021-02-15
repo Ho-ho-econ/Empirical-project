@@ -3,7 +3,7 @@ title: "Microeconometrics, Empirical project, Group 8"
 author:
 - Atanasov Georgi^[student ID 11776393]
 - Fitter Jonathan^[student ID 11709902]
-- Hochholzer Matthias^[student ID  11724853]
+- Hochholzer Matthias^[student ID 11724853]
 - Woharcik Verena^[student ID 11701581]
 date: "7th February 2021"
 output:
@@ -249,8 +249,7 @@ summary(log)
 ```
 
 
-
-For comparison the probit model wih same regressors
+For comparison the probit model with same regressors
 ```{r}
 prob <- glm(arr86 ~   ptime86 + qemp86 + inc86  + black + hispan + pcnvsq + pt86sq + inc86sq , data = df, family=binomial(link = "probit"))
 
@@ -284,7 +283,7 @@ fav <- mean(dnorm(predict(log,type="link")))
 fav*coef(log)
 ```
 
-## Predicition of cutoff for Logit
+## Classification table
 ```{r}
 tab <- table(true= df$arr86, pred= ifelse(fitted(log)>0.5,1,0))
 tab
@@ -304,15 +303,25 @@ h accuracy = `r accuracy`, $h_0$ specificity = `r specificity` and $h_1$ sensiti
 ####### IMPROVE CUTOFF BY CONSIDERING SPEC/SENS ########
 ###########
 
-## ROC
 ```{r}
 pred <- prediction(fitted(log),df$arr86)
-plot(performance(pred, "acc"))
+plot(performance(pred, "acc"),col="darkgreen")
 
-# adjusted cutoff value ... 0.3
+plot(performance(pred, "sens"),col="blue",ylab="")
+par(new=TRUE)
+plot(performance(pred, "spec"),col="red",ylab="Specificity/Sensitivity")
+legend(0.4, 0.8, legend=c("Specificity", "Sensitivity"),
+       col=c("red", "blue"), lty=1:1, cex=0.8)
+
+# -->adjusted cutoff value ... 0.3
 tab_cut <- table(true= df$arr86, pred= ifelse(fitted(log)>0.3,1,0))
 tab_cut
+```
 
+
+
+## ROC
+```{r}
 plot(performance(pred,"tpr", "fpr"))
 abline(0,1,lty=2)
 ```
