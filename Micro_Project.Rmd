@@ -224,9 +224,10 @@ summary(prob)
 ```
 
 
-
-## parameter logit probit check
-prob/log
+## parameter logit probit check, for "ptime86"
+```{r}
+1.251e+00/7.387e-01
+```
 slide 21 ... factor 1.6
 
 ##Average marginal effect
