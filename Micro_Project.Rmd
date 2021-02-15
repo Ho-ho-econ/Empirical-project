@@ -175,7 +175,7 @@ ols_all <- lm(narr86 ~ pcnv + avgsen + tottime + ptime86 + qemp86 + inc86 + dura
 summary(ols_all)
 ```
 
-## Chosen Model:
+### Chosen Model:
 $$ narr86 = \beta_0 + \beta_1\ pcnv + \beta_2\ ptime86 +  \beta_3\ inc86 +  \beta_4\ black +  \beta_5\ hispan +  \beta_6\ pcnvsq+ \beta_7\ pt86sq+ \beta_8\ inc86sq   $$
 
 ```{r, echo=FALSE}
@@ -191,18 +191,24 @@ creating a binary variable arr86, when a person gets arrested at least once.
 df$arr86 <- ifelse(df$narr86>0 ,1 ,0)
 ```
 
+Logit with all variables
 ```{r}
 log_all <- glm(arr86 ~ pcnv + avgsen + tottime + ptime86 + qemp86 + inc86 + durat + black + hispan + born60 + pcnvsq + pt86sq + inc86sq , data = df, family=binomial(link = "logit"))
 
 summary(log_all)
 ```
+
+Chosen Logit model
+
+$$ Pr(arr86=1|X) = \frac{exp(\beta_0 + \beta_1\ pcnv + \beta_2\ ptime86 +  \beta_3\ inc86 +  \beta_4\ black +  \beta_5\ hispan +  \beta_6\ pcnvsq+ \beta_7\ pt86sq+ \beta_8\ inc86sq)}{1+exp(\beta_0 + \beta_1\ pcnv + \beta_2\ ptime86 +  \beta_3\ inc86 +  \beta_4\ black +  \beta_5\ hispan +  \beta_6\ pcnvsq+ \beta_7\ pt86sq+ \beta_8\ inc86sq)}   $$
+
 ```{r}
 log <- glm(arr86 ~   ptime86 + qemp86 + inc86  + black + hispan + pcnvsq + pt86sq + inc86sq , data = df, family=binomial(link = "logit"))
 
 summary(log)
 ```
 
-For comparison
+For comparison the probit model wih same regressors
 ```{r}
 prob <- glm(arr86 ~   ptime86 + qemp86 + inc86  + black + hispan + pcnvsq + pt86sq + inc86sq , data = df, family=binomial(link = "probit"))
 
@@ -211,23 +217,28 @@ summary(prob)
 
 ## Calculation of MC Faddens pseudo R^2
 ```{r}
-1-(prob$deviance/prob$null.deviance)
+r_log<- 1-(log$deviance/log$null.deviance)
+
+r_prob<- 1-(prob$deviance/prob$null.deviance)
 ```
+MC Faddens pseudo R^2 for Logit is `r_log` and for Probit it is `r_prob`.
+
 
 ## parameter logit probit check, for "ptime86"
 ```{r}
-1.251e+00/7.387e-01
+factor_log_prob <- 1.251e+00/7.387e-01
 ```
 slide 21 ... factor 1.6
+The factor between our Probit and Logit is `factor_log_prob`
 
-##Average marginal effect
+##Average marginal effect fo Logit
 ```{r}
 # for logit
 fav <- mean(dnorm(predict(log,type="link")))
 fav*coef(log)
 ```
 
-## Predicition of cutoff
+## Predicition of cutoff for Logit
 ```{r}
 tab <- table(true= df$arr86, pred= ifelse(fitted(log)>0.5,1,0))
 tab
@@ -249,6 +260,11 @@ tab_cut
 plot(performance(pred,"tpr", "fpr"))
 abline(0,1,lty=2)
 ```
+
+######################################
+#############Jonathan###################
+######################################
+
 
 ## Ordered Logit Model
 ```{r}
@@ -284,3 +300,7 @@ library("lmtest")
 lrtest(results.oprob,results.oprobalt)
 ```
 ## Truncated model, let's see
+
+######################################
+#############Jonathan###################
+######################################
