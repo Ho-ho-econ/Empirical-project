@@ -1,7 +1,7 @@
 ---
 title: "Microeconometrics, Empirical project, Group 8"
 author:
-- Atanasov Georgi^[student ID]
+- Atanasov Georgi^[student ID 11776393]
 - Fitter Jonathan^[student ID 11709902]
 - Geyer Niklas^[student ID]
 - Hochholzer Matthias^[student ID  11724853]
@@ -92,11 +92,15 @@ barplot(table(ifelse(df$black==0,df$narr86,NA)), xlab = "times arrested", ylab =
 #############Georgi###################
 ######################################
 
-### Working on "avgsen"
-The idea is to build a model estimating expected severity of conviction when arrested in 1986 using level of income, employment, total time spend in prison and color (black ad non-black) of the arrested. Hypothesis, which are to be tested, are that the coefficient of every single variable is equal to 0.
 
 
-#### Linear Model
+##  ** Modeling "avgsen" **
+Building model estimating expected severity of conviction when arrested in 1986 using level of income, employment, total time spend in prison and color (black ad non-black) of the arrested. Hypothesis, which are to be tested, are that the coefficient of every single variable is equal to 0.  
+
+$$  avgsen = \beta_0 + \beta_1\ inc86 + \beta_2\ black +  \beta_3\ tottime +  \beta_4\ qemp86  $$ 
+
+
+### Simple OLS-Estimation of the model
 
 The average severity is regressed on the above mentioned variables.
 ```{r,include=TRUE}
@@ -107,16 +111,16 @@ An output of an OLS-Estimation is given:
 ```{r}
 summary((lm_sev2))
 ```
-##### Interpretation of the OLS output
+#### Interpretation of the OLS output
 
 We see a high R-squared. The significant variables for 0.05 significance level are the total time spend in prison and the color. No significance of the other variables is proven.
 
-##### Problems with the OLS 
-Some of the variables may be ednogenuos.
+#### Problems with the OLS 
+Some of the variables may be ednogenuos E.g assumptions may be violated.
 => Testing  this way may not be correct.
 
-#### IV Regression
-The idea is to use instrumental variables in the estimation of the expected severity.
+### IV-Regression (using 2SLS-Estimation)
+Use instrumental variables in the estimation of the expected severity.
 Define:
 endogenuos var: income86, qemp86, tottime
 exogenuos var: black
@@ -128,7 +132,7 @@ IV_sev1<-ivreg(avgsen~ tottime+ black+ qemp86+ inc86 | black+ durat+ narr86+ nfa
 ```
 
 
-##### Check if Instuments are adequate
+#### Check if Instuments are adequate
 1. Check if regressors and instruments are correlated
 ```{r ,include=TRUE}
 i1lm_sev1<- lm(tottime~ black+ durat+ narr86+ nfarr86+ nparr86+ ptime86, data=df)
@@ -141,7 +145,7 @@ i3lm_sev1<- lm( inc86~ black+ durat+ narr86+ nfarr86+ nparr86+ ptime86, data=df)
 summary(i3lm_sev1)
 ```
 
-Multiple r-squared > 0 is observed in every regression => first criterion is met.  
+Multiple R-squared > 0 is observed in every regression => first criterion is met.  
 
 2. Check if errors and instruments are uncorrelated.
 ```{r, include=TRUE}
@@ -150,18 +154,17 @@ lm_resid_sev1<-lm(resid_sev1~black+ durat+ narr86+ nfarr86+ nparr86+ ptime86, da
 summary(lm_resid_sev1)
 ```
 A really small multiple R-squared is observed. The p-values of variables are considerably higher than 0.05 significance level. 
-What can be done in addition is a test on  $n*R^{2}, where R^{2} is the non-centered R^{2}
+What can be done in addition is a test on $$ n*R^{2} $$ , where  $$ R^{2}$$ is the non-centered $$ R^{2} $$ 
 ```{r, include=TRUE}
 0.0008356*2725
 ```
 Which is smaller than the Chi-square value on 2 df and 0.05 significanse level=> also the second criterion is met. 
 
-#####Summary of the IV-Model
+####Summary of the IV-Model
 ```{r, include=TRUE}
 summary(IV_sev1)
 ```
-Here a high R-squared is observed. Tottime and Black are the only significant variables.
-
+Here a high R-squared is observed. Tottime and black are the only significant variables.
 ######################################
 #############Georgi###################
 ######################################
@@ -176,7 +179,7 @@ ols_all <- lm(narr86 ~ pcnv + avgsen + tottime + ptime86 + qemp86 + inc86 + dura
 summary(ols_all)
 ```
 
-### Model:
+## Chosen Model:
 $$ narr86 = \beta_0 + \beta_1\ pcnv + \beta_2\ ptime86 +  \beta_3\ inc86 +  \beta_4\ black +  \beta_5\ hispan +  \beta_6\ pcnvsq+ \beta_7\ pt86sq+ \beta_8\ inc86sq   $$
 
 ```{r, echo=FALSE}
@@ -184,17 +187,6 @@ $$ narr86 = \beta_0 + \beta_1\ pcnv + \beta_2\ ptime86 +  \beta_3\ inc86 +  \bet
 ols <- lm(narr86 ~ pcnv + ptime86 + inc86 + black + hispan + pcnvsq + pt86sq + inc86sq  , data=df)
 summary(ols)
 ```
-
-## IV Regression
-
-### Model:
-
-
-
-### Generalized IV estimation
-
-
-### 2SLS estimation
 
 
 ## LOGIT model
@@ -226,10 +218,10 @@ summary(prob)
 1-(prob$deviance/prob$null.deviance)
 ```
 
-
-
-## parameter logit probit check
-prob/log
+## parameter logit probit check, for "ptime86"
+```{r}
+1.251e+00/7.387e-01
+```
 slide 21 ... factor 1.6
 
 ##Average marginal effect
@@ -241,7 +233,7 @@ fav*coef(log)
 
 ## Predicition of cutoff
 ```{r}
-tab <- table(true= df$arr86, pred= round(fitted(log)))
+tab <- table(true= df$arr86, pred= ifelse(fitted(log)>0.5,1,0))
 tab
 
 tabp <-round(100* c(tab[1,1]+tab[2,2], tab[2,1]+ tab[1,2]/sum(tab)), digits = 2)
@@ -253,6 +245,10 @@ tabp
 ```{r}
 pred <- prediction(fitted(log),df$arr86)
 plot(performance(pred, "acc"))
+
+# adjusted cutoff value ... 0.3
+tab_cut <- table(true= df$arr86, pred= ifelse(fitted(log)>0.3,1,0))
+tab_cut
 
 plot(performance(pred,"tpr", "fpr"))
 abline(0,1,lty=2)
