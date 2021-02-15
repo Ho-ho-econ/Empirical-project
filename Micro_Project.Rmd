@@ -1,24 +1,27 @@
 ---
-title: Microeconometrics, Empirical project, Group 8
+title: "Microeconometrics, Empirical project, Group 8"
 author:
 - Atanasov Georgi^[student ID]
 - Fitter Jonathan^[student ID 11709902]
 - Geyer Niklas^[student ID]
 - Hochholzer Matthias^[student ID  11724853]
 - Woharcik Verena^[student ID]
-date: 7th February 2021
+date: "7th February 2021"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
 header-includes:
 - \usepackage{fancyhdr}
 - \usepackage{lastpage}
 - \usepackage{graphicx}
 - \pagestyle{fancy}
 - \fancypagestyle{plain}{\pagestyle{fancy}}
-- \fancyhead[L]{Empirical project} 
-- \fancyhead[R]{\thepage\ of \pageref{LastPage}} 
-- \fancyfoot[R]{\includegraphics[width=3cm]{Uni_Logo_blau.png}} 
+- \fancyhead[L]{Empirical project}
+- \fancyhead[R]{\thepage\ of \pageref{LastPage}}
+- \fancyfoot[R]{\includegraphics[width=3cm]{Uni_Logo_blau.png}}
 - \fancyfoot[C]{}
 - \setlength{\footskip}{46.27646pt}
-output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -271,21 +274,21 @@ margins.oglmx(results.oprob,ascontinuous = TRUE)
 ##WORK IN PROGRESS:Alternative model with fixed thresholds (restrictions)
 ```{r}
 
-results.oprob1<-oglmx(y ~ x1 + x2, ~ x1 + x2, data=sampleframe,
-                        constantMEAN = FALSE, constantSD = FALSE)
+#results.oprob1<-oglmx(y ~ x1 + x2, ~ x1 + x2, data=df,
+#                        constantMEAN = FALSE, constantSD = FALSE)
 "Alternative model with fixed thresholds"
 
-results.oprob1alt<-oglmx(y ~ x1 + x2, ~ x1 + x2, data=sampleframe,
-                        constantMEAN = TRUE, constantSD = TRUE,
-                        threshparam=c(-0.5,NA,1.5))
-summary(results.oprob1)
-summary(results.oprob1alt)
+#results.oprob1alt<-oglmx(y ~ x1 + x2, ~ x1 + x2, data=df,
+#                        constantMEAN = TRUE, constantSD = TRUE,
+#                        threshparam=c(-0.5,NA,1.5))
+#summary(results.oprob1)
+#summary(results.oprob1alt)
 ```
 
 ##WORK IN PROGRESS:Some Testing
 ```{r}
 library("lmtest")
 
-lrtest(results.oprob,results.oprobalt)
+#lrtest(results.oprob,results.oprobalt)
 ```
 ## Truncated model, let's see
