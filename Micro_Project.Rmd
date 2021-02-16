@@ -355,8 +355,6 @@ margins.oglmx(results.olog,ascontinuous = TRUE) #treating discrete variables lik
 
 Alternative model with fixed thresholds (restrictions)
 ```{r}
-
-
 results.ologalt<-oglmx(narr86 ~  0 + ptime86 + qemp86 + inc86  + black + hispan + pcnvsq + pt86sq + inc86sq, data=dfn, link="logit", threshparam=c(0.9,1.8,2.7))
 
 "Unrestricted model"
