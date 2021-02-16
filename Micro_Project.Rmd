@@ -70,6 +70,8 @@ A data.frame with 2725 observations on 16 variables:
 - pt86sq: ptime86^2
 - inc86sq: inc86^2
 
+\newpage
+
 ## Descriptive Statistics
 
 ### Correlation Plots
@@ -103,10 +105,11 @@ barplot(table(ifelse(df$black==1,df$narr86,NA)), xlab = "times arrested", ylab =
 barplot(table(ifelse(df$black==0,df$narr86,NA)), xlab = "times arrested", ylab = "amount", main = "Histogram Black/White", col="red")
 ```
 
-# PART 1
+# Part 1
 
-** Modeling "avgsen" **
-Building model estimating expected severity of conviction when arrested in 1986 using level of income, employment, total time spend in prison and color (black ad non-black) of the arrested
+**Modeling "avgsen"** 
+
+Building a model, estimating expected severity of conviction when arrested in 1986 using level of income, employment, total time spend in prison and color (black ad non-black) of the arrested
 
 Our hypothesis is, that the mentioned variables have a significant effect on the average sentence length.
 
@@ -132,17 +135,10 @@ lm_sev<-lm(avgsen~ tottime+ black+ qemp86+ inc86, data = df)
 summary(lm_sev)
 ```
 
-<<<<<<< HEAD
-## Censored Tobit
-```{r}
-summary(tobit(avgsen~ tottime+ black+ qemp86+ inc86, left=-Inf, right = 12, data=df))
-```
 
 
-An output of an OLS-Estimation is given:
 =======
 Output of an OLS-Estimation is given:
->>>>>>> 46ddc7ccb7db371d25722424b3e3b57968204506
 ```{r}
 summary((lm_sev))
 ```
@@ -212,10 +208,11 @@ Value is smaller than the Chi-square value on 2 df and 0.05 significance level=>
 summary(tobit(avgsen~ tottime+ black+ qemp86+ inc86, left=-Inf, right = 12, data=df))
 ```
 
-# PART 2
+# Part 2
 Building a model, which aims at estimating probability of arrest during 1986. A dependend binory variable, describing the states: arrested and not arrested, is to be regressed. 
 
 In this part we test the hypothesis that every single regressor has a significant impact on the dependend variable.
+
 
 ## Simple OLS Regression, LPM
 
@@ -251,7 +248,7 @@ Although OLS yields unbiased estimators, heteroskedasticity among other things l
 
 Additionally: Errors also not normal
 
-## LOGIT model
+## Logit model
 We are creating a binary variable arr86, when a person gets arrested at least once.
 Define: 
 arr86 = 1 if arrested in 1986
@@ -365,12 +362,10 @@ The area under the ROC curve (AUC) amounts to `auc_number`.
 
 ## Ordered Logit Model
 
-Excluding narr86 > 4
-```{r}
 <<<<<<< HEAD
-"Excluding narr86 > 4"
-=======
->>>>>>> 46ddc7ccb7db371d25722424b3e3b57968204506
+##  Excluding number of arrests > 4
+
+```{r}
 dfn<- df %>%
   subset(df$narr<4)
 head(dfn)
@@ -406,7 +401,6 @@ lrtest(results.olog,results.ologalt)
 ```
 
 
-<<<<<<< HEAD
+
 =======
 End
->>>>>>> 46ddc7ccb7db371d25722424b3e3b57968204506
