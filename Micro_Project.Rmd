@@ -305,9 +305,9 @@ h accuracy = `r accuracy`, $h_0$ specificity = `r specificity` and $h_1$ sensiti
 
 ```{r}
 pred <- prediction(fitted(log),df$arr86)
-plot(performance(pred, "acc"),col="darkgreen")
+plot(performance(pred, "acc"),col="darkgreen",main="Accuracy vs. Probability cutoff")
 
-plot(performance(pred, "sens"),col="blue",ylab="")
+plot(performance(pred, "sens"),col="blue",ylab="", main="Sensitivity/Specificity vs. Probability cutoff")
 par(new=TRUE)
 plot(performance(pred, "spec"),col="red",ylab="Specificity/Sensitivity")
 legend(0.4, 0.8, legend=c("Specificity", "Sensitivity"),
