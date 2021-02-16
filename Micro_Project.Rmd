@@ -123,7 +123,15 @@ We have proceeded our further estimation of avsen after excluding variables whic
 The average severity is regressed on the income in 1986, employment in 1986, color (black and non-black) and total time spend in prison.
 ```{r,include=TRUE}
 lm_sev<-lm(avgsen~ tottime+ black+ qemp86+ inc86, data = df) 
+summary(lm_sev)
 ```
+
+## Censored
+```{r}
+summary(tobit(avgsen~ tottime+ black+ qemp86+ inc86, left=-Inf, right = 60, data=df))
+```
+
+
 An output of an OLS-Estimation is given:
 ```{r}
 summary((lm_sev))
@@ -377,5 +385,4 @@ library("lmtest")
 
 lrtest(results.olog,results.ologalt)
 ```
-## Censored
 
