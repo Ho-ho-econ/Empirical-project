@@ -377,5 +377,5 @@ library("lmtest")
 
 lrtest(results.olog,results.ologalt)
 ```
-## Truncated model, let's see
+## Censored
 
