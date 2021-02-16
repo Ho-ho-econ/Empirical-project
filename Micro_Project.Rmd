@@ -163,6 +163,7 @@ $\hat{inc86} = \beta_0+\beta_1\ durat+\beta_2\, nparr+\beta_3\, nfarr +\beta_4\,
 $\hat{tottime} = \beta_0+\beta_1\ durat+\beta_2\, nparr+\beta_3\, nfarr +\beta_4\, narr +\beta_5\, ptime86$
 $\hat{qemp86} = \beta_0+\beta_1\ durat+\beta_2\, nparr+\beta_3\, nfarr +\beta_4\, narr +\beta_5\, ptime86$
 
+ 
 
 The regression code is given by:
 ```{r, include=TRUE}
@@ -188,7 +189,8 @@ i3lm_sev1<- lm( inc86~ black+ durat+ narr86+ nfarr86+ nparr86+ ptime86, data=df)
 summary(i3lm_sev1)
 ```
 R-squared >> 0 is observed in every regression => first criterion is met.  
-
+ 
+ 
 2. Check if errors and instruments are uncorrelated.
 ```{r, include=TRUE}
 resid_sev1<-resid(IV_sev1)
@@ -196,7 +198,8 @@ lm_resid_sev1<-lm(resid_sev1~black+ durat+ narr86+ nfarr86+ nparr86+ ptime86, da
 summary(lm_resid_sev1)
 ```
 A really small R-squared is observed. The p-values of variables are considerably higher than 0.05 significance level. 
-
+ 
+ 
 What can be done in addition is a test on $ n*R^{2} $ , where  $ R^{2} $ is the non-centered $ R^{2} $ ($ R^{2} $ used)
 ```{r, include=TRUE}
 summary(lm_resid_sev1)$r.squared*length(resid_sev1)
@@ -230,7 +233,6 @@ We will proceed our estimations ommitting insignificant variables from this esti
 ###  The Chosen Model:
 
 After omitting the insignificant variables, we create the following model:
-
 $$ narr86 = \beta_0 + \beta_1\ pcnv + \beta_2\ ptime86 +  \beta_3\ inc86 +  \beta_4\ black +  \beta_5\ hispan +  \beta_6\ pcnvsq+ \beta_7\ pt86sq+ \beta_8\ inc86sq   $$
 
 ```{r, echo=FALSE}
@@ -247,7 +249,8 @@ First to notice is the neglection of parameter restrictions: E.g. negative value
 Although OLS yields unbiased estimators, heteroskedasticity among other things leads to inefficient ones. 
 
 Additionally: Errors also not normal
-
+ 
+ 
 ## Logit model
 We are creating a binary variable arr86, when a person gets arrested at least once.
 Define: 
@@ -286,6 +289,7 @@ prob <- glm(arr86 ~   ptime86 + qemp86 + inc86  + black + hispan + pcnvsq + pt86
 
 summary(prob)
 ```
+
 ## Models diagnostics
 ### Calculation of MC Faddens pseudo R^2
 ```{r}
@@ -359,7 +363,8 @@ auc_number<-auc(roc_curve)
 auc_number
 ```
 The area under the ROC curve (AUC) amounts to `auc_number`.
-
+ 
+ 
 ## Ordered Logit Model
 
 <<<<<<< HEAD
