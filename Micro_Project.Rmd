@@ -34,6 +34,7 @@ library(foreign)
 library(ggplot2)
 library(ROCR)
 library(ivpack)
+library(pROC)
 ```
 
 
@@ -299,9 +300,6 @@ sensitivity<-TP/(TP+FN)
 ```
 h accuracy = `r accuracy`, $h_0$ specificity = `r specificity` and $h_1$ sensitivity = `r sensitivity`
 
-############
-####### IMPROVE CUTOFF BY CONSIDERING SPEC/SENS ########
-###########
 
 ```{r}
 pred <- prediction(fitted(log),df$arr86)
@@ -310,62 +308,68 @@ plot(performance(pred, "acc"),col="darkgreen",main="Accuracy vs. Probability cut
 plot(performance(pred, "sens"),col="blue",ylab="", main="Sensitivity/Specificity vs. Probability cutoff")
 par(new=TRUE)
 plot(performance(pred, "spec"),col="red",ylab="Specificity/Sensitivity")
-legend(0.4, 0.8, legend=c("Specificity", "Sensitivity"),
+legend(0.6, 0.4, legend=c("Specificity", "Sensitivity"),
        col=c("red", "blue"), lty=1:1, cex=0.8)
 
 # -->adjusted cutoff value ... 0.3
 tab_cut <- table(true= df$arr86, pred= ifelse(fitted(log)>0.3,1,0))
 tab_cut
+
 ```
 
 
 
 ## ROC
-```{r}
-plot(performance(pred,"tpr", "fpr"))
+```{r, echo=FALSE}
+roc_curve<-roc(response=df$narr86,predictor=predict.glm(log,type='response'),plot = FALSE)
+
+plot(performance(pred,"tpr", "fpr"), main="ROC curve")
 abline(0,1,lty=2)
+auc_number<-auc(roc_curve)
+auc_number
 ```
-
-######################################
-#############Jonathan###################
-######################################
-
+The area under the ROC curve (AUC) amounts to `auc_number`.
 
 ## Ordered Logit Model
+
+```{r}
+"Excluding narr86 > 4"
+dfn<- df %>% 
+  ifelse(df$narr86>3 ,">4" ,0) %>%
+  subset(narr86<4)
+
+```
+
 ```{r}
 library("oglmx")
-results.oprob<-oglmx(narr86 ~  ptime86 + qemp86 + inc86  + black + hispan + pcnvsq + pt86sq + inc86sq, data=df, link="probit",
-                     constantMEAN = FALSE, constantSD = FALSE,
+results.olog<-oglmx(narr86 ~  0 + ptime86 + qemp86 + inc86  + black + hispan + pcnvsq + pt86sq + inc86sq, data=dfn, link="logit",
                      delta=0,threshparam = NULL)
-summary(results.oprob)
-
-"marginal effects"
-margins.oglmx(results.oprob,ascontinuous = TRUE)
-
+summary(results.olog)
 ```
 
-##WORK IN PROGRESS:Alternative model with fixed thresholds (restrictions)
+```{r}
+"marginal effects"
+margins.oglmx(results.olog,ascontinuous = TRUE) #treating discrete variables like continuous ones, gives reasonable approximations of marginal effects
+```
+
+
+Alternative model with fixed thresholds (restrictions)
 ```{r}
 
-#results.oprob1<-oglmx(y ~ x1 + x2, ~ x1 + x2, data=df,
-#                        constantMEAN = FALSE, constantSD = FALSE)
-"Alternative model with fixed thresholds"
 
-#results.oprob1alt<-oglmx(y ~ x1 + x2, ~ x1 + x2, data=df,
-#                        constantMEAN = TRUE, constantSD = TRUE,
-#                        threshparam=c(-0.5,NA,1.5))
-#summary(results.oprob1)
-#summary(results.oprob1alt)
+results.ologalt<-oglmx(narr86 ~  0 + ptime86 + qemp86 + inc86  + black + hispan + pcnvsq + pt86sq + inc86sq, data=dfn, link="logit", threshparam=c(0.9,1.8,2.7))
+
+"Unrestricted model"
+summary(results.olog)
+"Alternative model with fixed thresholds"
+summary(results.ologalt)
 ```
 
-##WORK IN PROGRESS:Some Testing
+Likelihoodratio-Test to compare unrestricted and restricted model
 ```{r}
 library("lmtest")
 
-#lrtest(results.oprob,results.oprobalt)
+lrtest(results.olog,results.ologalt)
 ```
 ## Truncated model, let's see
 
-######################################
-#############Jonathan###################
-######################################
