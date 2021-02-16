@@ -35,6 +35,7 @@ library(ggplot2)
 library(ROCR)
 library(ivpack)
 library(pROC)
+library(oglmx)
 ```
 
 
@@ -126,9 +127,9 @@ lm_sev<-lm(avgsen~ tottime+ black+ qemp86+ inc86, data = df)
 summary(lm_sev)
 ```
 
-## Censored
+## Censored Tobit
 ```{r}
-summary(tobit(avgsen~ tottime+ black+ qemp86+ inc86, left=-Inf, right = 60, data=df))
+summary(tobit(avgsen~ tottime+ black+ qemp86+ inc86, left=-Inf, right = 12, data=df))
 ```
 
 
@@ -350,14 +351,12 @@ The area under the ROC curve (AUC) amounts to `auc_number`.
 
 ```{r}
 "Excluding narr86 > 4"
-dfn<- df %>% 
-  ifelse(df$narr86>3 ,">4" ,0) %>%
-  subset(narr86<4)
-
+dfn<- df %>%
+  subset(df$narr<4)
+head(dfn)
 ```
 
 ```{r}
-library("oglmx")
 results.olog<-oglmx(narr86 ~  0 + ptime86 + qemp86 + inc86  + black + hispan + pcnvsq + pt86sq + inc86sq, data=dfn, link="logit",
                      delta=0,threshparam = NULL)
 summary(results.olog)
@@ -385,4 +384,5 @@ library("lmtest")
 
 lrtest(results.olog,results.ologalt)
 ```
+
 
