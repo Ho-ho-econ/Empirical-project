@@ -7,9 +7,9 @@ author:
 - Woharcik Verena^[student ID 11701581]
 date: "17th February 2021"
 output:
-  pdf_document: default
-  html_document:
-    df_print: paged
+  pdf_document:
+    number_sections: true
+    toc: true
 header-includes:
 - \usepackage{fancyhdr}
 - \usepackage{lastpage}
@@ -39,7 +39,10 @@ library(oglmx)
 ```
 
 
-## Importing data
+\newpage
+# Data
+
+## Importing the dataset
 from Wooldridge, his source: J. Grogger (1991), “Certainty vs. Severity of Punishment,” Economic Inquiry
 29, 297-309.
 ```{r}
@@ -67,7 +70,7 @@ A data.frame with 2725 observations on 16 variables:
 - pt86sq: ptime86^2
 - inc86sq: inc86^2
 
-# Descriptive Statistics
+## Descriptive Statistics
 
 ### Correlation Plots
 
@@ -100,16 +103,16 @@ barplot(table(ifelse(df$black==1,df$narr86,NA)), xlab = "times arrested", ylab =
 barplot(table(ifelse(df$black==0,df$narr86,NA)), xlab = "times arrested", ylab = "amount", main = "Histogram Black/White", col="red")
 ```
 
-#PART 1
+# PART 1
 
-##  ** Modeling "avgsen" **
+** Modeling "avgsen" **
 Building model estimating expected severity of conviction when arrested in 1986 using level of income, employment, total time spend in prison and color (black ad non-black) of the arrested
 
 Our hypothesis is, that the mentioned variables have a significant effect on the average sentence length.
 
 $$  avgsen = \beta_0 + \beta_1\ inc86 + \beta_2\ black +  \beta_3\ tottime +  \beta_4\ qemp86  $$ 
 
-### Simple OLS-Estimation
+## Simple OLS-Estimation
 
  A General OLS estimation including all potential regressors:
 ```{r,include=TRUE}
@@ -122,11 +125,14 @@ A high R-squared is observable. Only few variables are significant for 0.05 and 
 We have proceeded our further estimation of avsen after excluding variables which have considerably high p-values.
 
 The average severity is regressed on the income in 1986, employment in 1986, color (black and non-black) and total time spend in prison.
+
+
 ```{r,include=TRUE}
 lm_sev<-lm(avgsen~ tottime+ black+ qemp86+ inc86, data = df) 
 summary(lm_sev)
 ```
 
+<<<<<<< HEAD
 ## Censored Tobit
 ```{r}
 summary(tobit(avgsen~ tottime+ black+ qemp86+ inc86, left=-Inf, right = 12, data=df))
@@ -134,6 +140,9 @@ summary(tobit(avgsen~ tottime+ black+ qemp86+ inc86, left=-Inf, right = 12, data
 
 
 An output of an OLS-Estimation is given:
+=======
+Output of an OLS-Estimation is given:
+>>>>>>> 46ddc7ccb7db371d25722424b3e3b57968204506
 ```{r}
 summary((lm_sev))
 ```
@@ -144,16 +153,20 @@ We see almost the same R-squared as from the previous OLS-Estimation. The signif
 Some of the variables may be endogenous E.g assumptions may be violated.
 => Testing  this way may not be correct.
 
-#################################
-#########LATEX EQUATION##########
-#################################
 
-### IV-Regression (using 2SLS-Estimation)
+## IV-Regression (using 2SLS-Estimation)
 Use instrumental variables in the estimation of the expected severity.
 Define:
 endogenous var: income86, qemp86, tottime
 exogenuos var: black
 instruments: durat, nparr, nfarr, narr, ptime86
+
+$$  avgsen = \beta_0 + \beta_1\, \hat{inc86} + \beta_2\, black +  \beta_3\, \hat{tottime} +  \beta_4\, \hat{qemp86}  $$ 
+,with
+$\hat{inc86} = \beta_0+\beta_1\ durat+\beta_2\, nparr+\beta_3\, nfarr +\beta_4\, narr +\beta_5\, ptime86$
+$\hat{tottime} = \beta_0+\beta_1\ durat+\beta_2\, nparr+\beta_3\, nfarr +\beta_4\, narr +\beta_5\, ptime86$
+$\hat{qemp86} = \beta_0+\beta_1\ durat+\beta_2\, nparr+\beta_3\, nfarr +\beta_4\, narr +\beta_5\, ptime86$
+
 
 The regression code is given by:
 ```{r, include=TRUE}
@@ -194,7 +207,10 @@ summary(lm_resid_sev1)$r.squared*length(resid_sev1)
 ```
 Value is smaller than the Chi-square value on 2 df and 0.05 significance level=> also the second criterion is met. 
 
-
+## Censored Tobit
+```{r}
+summary(tobit(avgsen~ tottime+ black+ qemp86+ inc86, left=-Inf, right = 12, data=df))
+```
 
 # PART 2
 Building a model, which aims at estimating probability of arrest during 1986. A dependend binory variable, describing the states: arrested and not arrested, is to be regressed. 
@@ -273,8 +289,8 @@ prob <- glm(arr86 ~   ptime86 + qemp86 + inc86  + black + hispan + pcnvsq + pt86
 
 summary(prob)
 ```
-### Models diagnostics
-## Calculation of MC Faddens pseudo R^2
+## Models diagnostics
+### Calculation of MC Faddens pseudo R^2
 ```{r}
 r_log<- 1-(log$deviance/log$null.deviance)
 
@@ -283,7 +299,7 @@ r_prob<- 1-(prob$deviance/prob$null.deviance)
 MC Faddens pseudo R^2 for Logit is `r_log` and for Probit it is `r_prob`.
 
 
-## Scaling of probit to logit (ptime86)
+### Scaling of probit to logit (ptime86)
 ```{r, include=FALSE}
 factor_log_prob<- (log$coefficients[2]/prob$coefficients[2])
 factor_log_prob
@@ -291,7 +307,7 @@ factor_log_prob
 
 The factor between our Probit and Logit is `factor_log_prob`. And it is close to 1.6
 
-##Interpretation of Coefficients: Odds and Average-Marginal-Effects
+### Interpretation of Coefficients: Odds and Average-Marginal-Effects
 ```{r}
 # for logit
 odds<- exp(log$coefficients)
@@ -301,7 +317,7 @@ fav <- mean(dnorm(predict(log,type="link")))
 fav*coef(log)
 ```
 
-## Classification table
+### Classification table
 ```{r}
 tab <- table(true= df$arr86, pred= ifelse(fitted(log)>0.5,1,0))
 tab
@@ -317,7 +333,7 @@ sensitivity<-TP/(TP+FN)
 ```
 h accuracy = `r accuracy`, $h_0$ specificity = `r specificity` and $h_1$ sensitivity = `r sensitivity`
 
-
+### Finding Probability cutoff
 ```{r}
 pred <- prediction(fitted(log),df$arr86)
 plot(performance(pred, "acc"),col="darkgreen",main="Accuracy vs. Probability cutoff")
@@ -336,8 +352,8 @@ tab_cut
 
 
 
-## ROC
-```{r, echo=FALSE}
+### ROC
+```{r echo=FALSE, warning=FALSE}
 roc_curve<-roc(response=df$narr86,predictor=predict.glm(log,type='response'),plot = FALSE)
 
 plot(performance(pred,"tpr", "fpr"), main="ROC curve")
@@ -349,8 +365,12 @@ The area under the ROC curve (AUC) amounts to `auc_number`.
 
 ## Ordered Logit Model
 
+Excluding narr86 > 4
 ```{r}
+<<<<<<< HEAD
 "Excluding narr86 > 4"
+=======
+>>>>>>> 46ddc7ccb7db371d25722424b3e3b57968204506
 dfn<- df %>%
   subset(df$narr<4)
 head(dfn)
@@ -362,13 +382,13 @@ results.olog<-oglmx(narr86 ~  0 + ptime86 + qemp86 + inc86  + black + hispan + p
 summary(results.olog)
 ```
 
+### Marginal effects
 ```{r}
-"marginal effects"
 margins.oglmx(results.olog,ascontinuous = TRUE) #treating discrete variables like continuous ones, gives reasonable approximations of marginal effects
 ```
 
 
-Alternative model with fixed thresholds (restrictions)
+### Alternative model with fixed thresholds (restrictions)
 ```{r}
 results.ologalt<-oglmx(narr86 ~  0 + ptime86 + qemp86 + inc86  + black + hispan + pcnvsq + pt86sq + inc86sq, data=dfn, link="logit", threshparam=c(0.9,1.8,2.7))
 
@@ -378,7 +398,7 @@ summary(results.olog)
 summary(results.ologalt)
 ```
 
-Likelihoodratio-Test to compare unrestricted and restricted model
+### Likelihoodratio-Test to compare unrestricted and restricted model
 ```{r}
 library("lmtest")
 
@@ -386,3 +406,7 @@ lrtest(results.olog,results.ologalt)
 ```
 
 
+<<<<<<< HEAD
+=======
+End
+>>>>>>> 46ddc7ccb7db371d25722424b3e3b57968204506
