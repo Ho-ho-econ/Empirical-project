@@ -127,9 +127,9 @@ lm_sev<-lm(avgsen~ tottime+ black+ qemp86+ inc86, data = df)
 summary(lm_sev)
 ```
 
-## Censored
+## Censored Tobit
 ```{r}
-summary(tobit(avgsen~ tottime+ black+ qemp86+ inc86, left=-Inf, right = 60, data=df))
+summary(tobit(avgsen~ tottime+ black+ qemp86+ inc86, left=-Inf, right = 12, data=df))
 ```
 
 
@@ -383,12 +383,6 @@ Likelihoodratio-Test to compare unrestricted and restricted model
 library("lmtest")
 
 lrtest(results.olog,results.ologalt)
-```
-
-## Tobit
-```{r}
-tml <- tobit(arr86 ~   ptime86 + qemp86 + inc86  + black + hispan + pcnvsq + pt86sq + inc86sq, left = -Inf, right = 12, data=df)
-summary(tml)
 ```
 
 
