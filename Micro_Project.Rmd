@@ -50,25 +50,29 @@ df<-read.dta("http://fmwww.bc.edu/ec-p/data/wooldridge/crime1.dta")
 attach(df)
 head(df)
 str(df)
+```
+
+\newpage
+```{r}
 summary(df)
 ```
-A data.frame with 2725 observations on 16 variables:
-- narr86: times arrested, 1986
-- nfarr86: felony arrests, 1986
-- nparr86: property crme arr., 1986
-- pcnv: proportion of prior convictions
-- avgsen: avg sentence length, mos.
-- tottime: time in prison since 18 (mos.)
-- ptime86: mos. in prison during 1986
-- qemp86: quarters employed, 1986
-- inc86: legal income, 1986, $100s
-- durat: recent unemp duration
-- black: =1 if black
-- hispan: =1 if Hispanic
-- born60: =1 if born in 1960
-- pcnvsq: pcnv^2
-- pt86sq: ptime86^2
-- inc86sq: inc86^2
+**A data.frame with 2725 observations on 16 variables:**   
+- narr86: times arrested, 1986    
+- nfarr86: felony arrests, 1986   
+- nparr86: property crme arr., 1986   
+- pcnv: proportion of prior convictions  
+- avgsen: avg sentence length, mos.   
+- tottime: time in prison since 18 (mos.)   
+- ptime86: mos. in prison during 1986  
+- qemp86: quarters employed, 1986  
+- inc86: legal income, 1986, $100s  
+- durat: recent unemp duration  
+- black: =1 if black  
+- hispan: =1 if Hispanic   
+- born60: =1 if born in 1960   
+- pcnvsq: pcnv^2  
+- pt86sq: ptime86^2   
+- inc86sq: inc86^2  
 
 \newpage
 
@@ -76,7 +80,7 @@ A data.frame with 2725 observations on 16 variables:
 
 ### Correlation Plots
 
-```{r}
+```{r, echo=FALSE}
 plot(df[,c("narr86", "avgsen", "inc86", "durat")])
 cor(df[,c("narr86", "avgsen", "inc86", "durat")])
 ```
@@ -91,18 +95,14 @@ plot(narr86, inc86, main = "Correlation, crime 1986", xlab= "times arrested", yl
 plot(narr86, avgsen, main = "Correlation, crime 1986", xlab= "times arrested", ylab="avg sentence length, mos.", col="darkblue")
 ```
 
-```{r}
-"HISTOGRAMME !"
+```{r, echo=FALSE}
+barplot(table(narr86), xlab="times arrested", ylab="subjects", main="Histogram: number of arrests of subjects", col="steelblue", ylim=c(0,2000))
 ```
 
 
-"NEEDS CHANGE!!!!!!!!!"
-!
-!
-!
-```{r, echo=FALSE}
+```{r,include=FALSE ,echo=FALSE}
 barplot(table(ifelse(df$black==1,df$narr86,NA)), xlab = "times arrested", ylab = "amount", main = "Histogram Black/White", col="blue")
-barplot(table(ifelse(df$black==0,df$narr86,NA)), xlab = "times arrested", ylab = "amount", main = "Histogram Black/White", col="red")
+barplot(table(ifelse(df$black==0,df$narr86,NA)), xlab = "times arrested", ylab = "amount", main = "Histogram Black/White",col="red" ,add=TRUE, beside=TRUE)
 ```
 
 # Part 1
@@ -111,43 +111,44 @@ barplot(table(ifelse(df$black==0,df$narr86,NA)), xlab = "times arrested", ylab =
 
 Building a model, estimating expected severity of conviction when arrested in 1986 using level of income, employment, total time spend in prison and color (black ad non-black) of the arrested
 
-Our hypothesis is, that the mentioned variables have a significant effect on the average sentence length.
+*Our hypothesis is, that the mentioned variables have a significant effect on the average 
+sentence length.*
 
 $$  avgsen = \beta_0 + \beta_1\ inc86 + \beta_2\ black +  \beta_3\ tottime +  \beta_4\ qemp86  $$ 
 
 ## Simple OLS-Estimation
 
  A General OLS estimation including all potential regressors:
-```{r,include=TRUE}
+```{r, echo=FALSE}
 lm_all<-lm(avgsen~. -nfarr86 - nparr86 , data = df)
 summary(lm_all)
 ```
 Interpretation:
-A high R-squared is observable. Only few variables are significant for 0.05 and 0.1 significance level. Also the p-Value of the F-statistic is low, which implies that there are some variables which can be used to explain the average sentence length.
+A high $R^{2}$ is observed. Only few variables are significant for *0.05* and *0.1* significance level. Also the *p-Value* of the *F-statistic* is low, which implies that there are some variables which can be used to explain the average sentence length.
+<br/>
 
-We have proceeded our further estimation of avsen after excluding variables which have considerably high p-values.
+We have proceeded our further estimation of avgsen after excluding variables which have considerably high *p-values*.
 
-The average severity is regressed on the income in 1986, employment in 1986, color (black and non-black) and total time spend in prison.
+The average severity(avgsen) is regressed on the income in 1986, employment in 1986, color (black and non-black) and total time spend in prison.
 
 
-```{r,include=TRUE}
+```{r, echo=FALSE}
 lm_sev<-lm(avgsen~ tottime+ black+ qemp86+ inc86, data = df) 
-summary(lm_sev)
 ```
 
 
 
-=======
-Output of an OLS-Estimation is given:
-```{r}
+Output of the OLS-Estimation is given:
+```{r, echo=FALSE}
 summary((lm_sev))
 ```
 Interpretation:
-We see almost the same R-squared as from the previous OLS-Estimation. The significant variables for 0.05 significance level are the total time spend in prison and the color. No significance of the other variables is proven.
+We see almost the same $R^{2}$ as from the previous OLS-Estimation. The significant variables for 0.05 significance level are the total time spend in prison and the color. No significance of the other variables is proven. Finally the F-statistic still indicates a properly estimated model.
 
+\newpage
 #### Problems with the OLS 
-Some of the variables may be endogenous E.g assumptions may be violated.
-=> Testing  this way may not be correct.
+Some of the variables may be endogenous e.g. assumptions may be violated.
+$\implies$ Testing  this way may not be correct.
 
 
 ## IV-Regression (using 2SLS-Estimation)
@@ -157,14 +158,19 @@ endogenous var: income86, qemp86, tottime
 exogenuos var: black
 instruments: durat, nparr, nfarr, narr, ptime86
 
-$$  avgsen = \beta_0 + \beta_1\, \hat{inc86} + \beta_2\, black +  \beta_3\, \hat{tottime} +  \beta_4\, \hat{qemp86}  $$ 
+**$$  avgsen = \beta_0 + \beta_1\, \hat{inc86} + \beta_2\, black +  \beta_3\, \hat{tottime} +  \beta_4\, \hat{qemp86}  $$**   
+
 ,with
-$\hat{inc86} = \beta_0+\beta_1\ durat+\beta_2\, nparr+\beta_3\, nfarr +\beta_4\, narr +\beta_5\, ptime86$
-$\hat{tottime} = \beta_0+\beta_1\ durat+\beta_2\, nparr+\beta_3\, nfarr +\beta_4\, narr +\beta_5\, ptime86$
-$\hat{qemp86} = \beta_0+\beta_1\ durat+\beta_2\, nparr+\beta_3\, nfarr +\beta_4\, narr +\beta_5\, ptime86$
+$\hat{inc86} = \beta_0+\beta_1\ durat+\beta_2\, nparr+\beta_3\, nfarr +\beta_4\, narr +\beta_5\, ptime86$  
 
- 
+$\hat{tottime} = \beta_0+\beta_1\ durat+\beta_2\, nparr+\beta_3\, nfarr +\beta_4\, narr +\beta_5\, ptime86$  
 
+$\hat{qemp86} = \beta_0+\beta_1\ durat+\beta_2\, nparr+\beta_3\, nfarr +\beta_4\, narr +\beta_5\, ptime86$  
+  
+  
+  
+  
+\
 The regression code is given by:
 ```{r, include=TRUE}
 IV_sev1<-ivreg(avgsen~ tottime+ black+ qemp86+ inc86 | black+ durat+ narr86+ nfarr86+ nparr86+ ptime86  ,data=df)
@@ -172,12 +178,12 @@ IV_sev1<-ivreg(avgsen~ tottime+ black+ qemp86+ inc86 | black+ durat+ narr86+ nfa
 summary(IV_sev1, diagnostics=TRUE)
 ```
 Interpretation:
-Here a high R-squared is observed. Tottime and black are the only significant variables for 0.05 significance level. 
-Furthermore, diagnostics of the instruments are provided. We observe small p-values, which means that instruments are not weak e.g they are appropriate. The value of the Hausmans-test is smaller than than the significance level of 0.05. Thus, meaning that instruments and residuals can be considered as uncorrelated. 
+Here a high $R^{2}$ is observed. Tottime and black are the only significant variables for *0.05* significance level. 
+Furthermore, diagnostics of the instruments are provided. We observe small *p-values*, which means that instruments are not weak e.g they are appropriate. The value of the *Hausman-test* is smaller than than the significance level of *0.05*. Thus, meaning that instruments and residuals can be considered as uncorrelated. 
 
 
 #### Manual Check if Instuments are adequate
-1. Check if regressors and instruments are correlated
+**1. Check if regressors and instruments are correlated**
 ```{r ,include=TRUE}
 i1lm_sev1<- lm(tottime~ black+ durat+ narr86+ nfarr86+ nparr86+ ptime86, data=df)
 summary(i1lm_sev1)
@@ -188,116 +194,123 @@ summary(i2lm_sev1)
 i3lm_sev1<- lm( inc86~ black+ durat+ narr86+ nfarr86+ nparr86+ ptime86, data=df)
 summary(i3lm_sev1)
 ```
-R-squared >> 0 is observed in every regression => first criterion is met.  
- 
- 
-2. Check if errors and instruments are uncorrelated.
+$R^{2}$ >> 0 is observed in every regression $\implies$ first criterion is met.  
+<br/>
+
+  
+**2. Check if errors and instruments are uncorrelated.**
 ```{r, include=TRUE}
 resid_sev1<-resid(IV_sev1)
 lm_resid_sev1<-lm(resid_sev1~black+ durat+ narr86+ nfarr86+ nparr86+ ptime86, data=df)
 summary(lm_resid_sev1)
 ```
-A really small R-squared is observed. The p-values of variables are considerably higher than 0.05 significance level. 
+A really small $R^{2}$ is observed. The *p-values* of variables are considerably higher than *0.05* significance level. 
  
  
-What can be done in addition is a test on $ n*R^{2} $ , where  $ R^{2} $ is the non-centered $ R^{2} $ ($ R^{2} $ used)
+What can be done in addition is a test on $n*R^{2}$ , where  $R^{2}$ is the non-centered $R^{2}$ 
 ```{r, include=TRUE}
 summary(lm_resid_sev1)$r.squared*length(resid_sev1)
 ```
-Value is smaller than the Chi-square value on 2 df and 0.05 significance level=> also the second criterion is met. 
+$\implies$Value is smaller than the Chi-square value on 2 df and *0.05* significance level $\implies$ also the second  criterion is met.  
 
+  
+  
 ## Censored Tobit
 ```{r}
 summary(tobit(avgsen~ tottime+ black+ qemp86+ inc86, left=-Inf, right = 12, data=df))
 ```
 
 # Part 2
-Building a model, which aims at estimating probability of arrest during 1986. A dependend binory variable, describing the states: arrested and not arrested, is to be regressed. 
+Building a model, which aims at estimating probability of arrest during 1986. A dependent binary variable, describing the states: arrested and not arrested, is to be regressed. 
 
-In this part we test the hypothesis that every single regressor has a significant impact on the dependend variable.
+*In this part we test the hypothesis that every single regressor has a significant impact on the dependent variable.*
 
 
 ## Simple OLS Regression, LPM
 
 ### OLS estimation of the variable narr86
 
-Regressing the variable narr86 on almost all variables
+Regressing the variable narr86 on all variables
 ```{r, echo=FALSE}
 # with all viariables
 ols_all <- lm(narr86 ~ pcnv + avgsen + tottime + ptime86 + qemp86 + inc86 + durat + black + hispan + born60 + pcnvsq + pt86sq + inc86sq , data=df)
 
 summary(ols_all)
 ```
-We will proceed our estimations ommitting insignificant variables from this estimation.
+We will proceed our estimations omitting insignificant variables from this estimation.
 
 ###  The Chosen Model:
 
-After omitting the insignificant variables, we create the following model:
-$$ narr86 = \beta_0 + \beta_1\ pcnv + \beta_2\ ptime86 +  \beta_3\ inc86 +  \beta_4\ black +  \beta_5\ hispan +  \beta_6\ pcnvsq+ \beta_7\ pt86sq+ \beta_8\ inc86sq   $$
-
+After omitting the insignificant variables, we get the following model: 
+$$ narr86 = \beta_0 + \beta_1\ pcnv + \beta_2\ ptime86 +  \beta_3\ inc86 +  \beta_4\ black +  \beta_5\ hispan +  \beta_6\ pcnvsq+ \beta_7\ pt86sq+ \beta_8\ inc86sq   $$  
+<br/>
+<br/>
 ```{r, echo=FALSE}
 #with chosen variables
-ols <- lm(narr86 ~ pcnv + ptime86 + inc86 + black + hispan + pcnvsq + pt86sq + inc86sq  , data=df)
+ols <- lm(narr86 ~ pcnv + ptime86 + inc86 + black 
+          + hispan + pcnvsq + pt86sq + inc86sq  , data=df)
 summary(ols)
-#becuase of problems
+#becuase of heteroskedastic errors
 robust.se(ols)
 ```
 
 Interpretation:
-First to notice is the neglection of parameter restrictions: E.g. negative values cannot easily be interpreted in this scenario.
+First to notice is the neglection of parameter restrictions: e.g. negative values cannot easily be interpreted in this scenario.
 
 Although OLS yields unbiased estimators, heteroskedasticity among other things leads to inefficient ones. 
 
-Additionally: Errors also not normal
+Additionally, errors also not normal
  
- 
+\newpage 
 ## Logit model
-We are creating a binary variable arr86, when a person gets arrested at least once.
-Define: 
-arr86 = 1 if arrested in 1986
+We reduce the categorical variable to a binary dummy:  
+arr86 = 1 if arrested in 1986  
 arr86 = 0 if not arrested in 1986
 ```{r}
 df$arr86 <- ifelse(df$narr86>0 ,1 ,0)
 ```
-
-We create a Logit-Model with all variables
+<br/>
+In a first instance we estimate a Logit model with all possible regressors
 ```{r}
-log_all <- glm(arr86 ~ pcnv + avgsen + tottime + ptime86 + qemp86 + inc86 + durat + black + hispan + born60 + pcnvsq + pt86sq + inc86sq , data = df, family=binomial(link = "logit"))
+log_all <- glm(arr86 ~ pcnv + avgsen + tottime + ptime86 + qemp86 + inc86 + durat + black
+               + hispan + born60 + pcnvsq + pt86sq + inc86sq , data = df
+               ,family=binomial(link = "logit"))
 
 summary(log_all)
 ```
+<br/>
+<br/>
+In a next step we reduce the number of regressors by including only significant estimates:
 
-Further Logit-Model with reduced number of variables:
-#############################qepmpl not included)(pcnv included) in the Latex###############
-##########################################################################################
-#########################################################################################
-
-
-$$ Pr(arr86=1|X) = \frac{exp(\beta_0 + \beta_1\ pcnv + \beta_2\ ptime86 +  \beta_3\ inc86 +  \beta_4\ black +  \beta_5\ hispan +  \beta_6\ pcnvsq+ \beta_7\ pt86sq+ \beta_8\ inc86sq)}{1+exp(\beta_0 + \beta_1\ pcnv + \beta_2\ ptime86 +  \beta_3\ inc86 +  \beta_4\ black +  \beta_5\ hispan +  \beta_6\ pcnvsq+ \beta_7\ pt86sq+ \beta_8\ inc86sq)}   $$
+\begin{align*} \small Pr(arr86=1|X) = \frac{exp(\beta_0 + \beta_1\ ptime86 + \beta_2\ qemp86 +  \beta_3\ inc86 +  \beta_4\ black +  \beta_5\ hispan +  \beta_6\ pcnvsq+ \beta_7\ pt86sq+ \beta_8\ inc86sq)}{1+exp(\beta_0 + \beta_1\ ptime86 + \beta_2\ qemp86 +  \beta_3\ inc86 +  \beta_4\ black +  \beta_5\ hispan +  \beta_6\ pcnvsq+ \beta_7\ pt86sq+ \beta_8\ inc86sq)} \end{align*}
 
 ```{r}
-log <- glm(arr86 ~   ptime86 + qemp86 + inc86  + black + hispan + pcnvsq + pt86sq + inc86sq , data = df, family=binomial(link = "logit"))
+log <- glm(arr86 ~   ptime86 + qemp86 + inc86  + black + hispan + pcnvsq + pt86sq 
+           + inc86sq , data = df, family=binomial(link = "logit"))
 
 summary(log)
 
 ```
 
-
+<br/>
 For comparison a Probit-Model with same regressors is given:
 ```{r}
-prob <- glm(arr86 ~   ptime86 + qemp86 + inc86  + black + hispan + pcnvsq + pt86sq + inc86sq , data = df, family=binomial(link = "probit"))
+prob <- glm(arr86 ~   ptime86 + qemp86 + inc86  + black + hispan + pcnvsq + pt86sq + inc86sq
+            , data = df, family=binomial(link = "probit"))
 
 summary(prob)
 ```
+<br/>
+<br/>
 
 ## Models diagnostics
-### Calculation of MC Faddens pseudo R^2
+### Calculation of MC Faddens pseudo $R^{2}$
 ```{r}
 r_log<- 1-(log$deviance/log$null.deviance)
 
 r_prob<- 1-(prob$deviance/prob$null.deviance)
 ```
-MC Faddens pseudo R^2 for Logit is `r_log` and for Probit it is `r_prob`.
+*McFadden's Pseudo-$R^{2}$* for Logit is `r r_log` and for Probit it is `r r_prob`.
 
 
 ### Scaling of probit to logit (ptime86)
@@ -306,7 +319,7 @@ factor_log_prob<- (log$coefficients[2]/prob$coefficients[2])
 factor_log_prob
 ```
 
-The factor between our Probit and Logit is `factor_log_prob`. And it is close to 1.6
+The factor between our Probit and Logit is `r factor_log_prob`, close to the common 1.6
 
 ### Interpretation of Coefficients: Odds and Average-Marginal-Effects
 ```{r}
@@ -332,10 +345,12 @@ accuracy=(TP+TN)/length(narr86)
 specificity<-TN/(FP+TN)
 sensitivity<-TP/(TP+FN)
 ```
-h accuracy = `r accuracy`, $h_0$ specificity = `r specificity` and $h_1$ sensitivity = `r sensitivity`
+accuracy = `r accuracy`  
+$h_0$ specificity = `r specificity`  
+$h_1$ sensitivity = `r sensitivity`
 
 ### Finding Probability cutoff
-```{r}
+```{r, echo= FALSE}
 pred <- prediction(fitted(log),df$arr86)
 plot(performance(pred, "acc"),col="darkgreen",main="Accuracy vs. Probability cutoff")
 
@@ -344,7 +359,10 @@ par(new=TRUE)
 plot(performance(pred, "spec"),col="red",ylab="Specificity/Sensitivity")
 legend(0.6, 0.4, legend=c("Specificity", "Sensitivity"),
        col=c("red", "blue"), lty=1:1, cex=0.8)
+```
 
+### Adjusted Classification table
+```{r}
 # -->adjusted cutoff value ... 0.3
 tab_cut <- table(true= df$arr86, pred= ifelse(fitted(log)>0.3,1,0))
 tab_cut
@@ -360,15 +378,14 @@ roc_curve<-roc(response=df$narr86,predictor=predict.glm(log,type='response'),plo
 plot(performance(pred,"tpr", "fpr"), main="ROC curve")
 abline(0,1,lty=2)
 auc_number<-auc(roc_curve)
-auc_number
+
 ```
-The area under the ROC curve (AUC) amounts to `auc_number`.
+The area under the ROC curve (AUC) amounts to `r auc_number`.
  
  
 ## Ordered Logit Model
 
-<<<<<<< HEAD
-##  Excluding number of arrests > 4
+###  Excluding number of arrests > 4
 
 ```{r}
 dfn<- df %>%
@@ -377,26 +394,29 @@ head(dfn)
 ```
 
 ```{r}
-results.olog<-oglmx(narr86 ~  0 + ptime86 + qemp86 + inc86  + black + hispan + pcnvsq + pt86sq + inc86sq, data=dfn, link="logit",
+results.olog<-oglmx(narr86 ~  0 + ptime86 + qemp86 + inc86  + black + hispan + pcnvsq 
+                    + pt86sq + inc86sq, data=dfn, link="logit",
                      delta=0,threshparam = NULL)
 summary(results.olog)
 ```
 
 ### Marginal effects
 ```{r}
-margins.oglmx(results.olog,ascontinuous = TRUE) #treating discrete variables like continuous ones, gives reasonable approximations of marginal effects
+margins.oglmx(results.olog,ascontinuous = TRUE) #treating discrete variables like 
+            # continuous ones, gives reasonable approximations of marginal effects
 ```
 
 
 ### Alternative model with fixed thresholds (restrictions)
 ```{r}
-results.ologalt<-oglmx(narr86 ~  0 + ptime86 + qemp86 + inc86  + black + hispan + pcnvsq + pt86sq + inc86sq, data=dfn, link="logit", threshparam=c(0.9,1.8,2.7))
+results.ologalt<-oglmx(narr86 ~  0 + ptime86 + qemp86 + inc86  + black + hispan + pcnvsq 
+                       + pt86sq + inc86sq, data=dfn, link="logit"
+                       , threshparam=c(0.9,1.8,2.7))
 
-"Unrestricted model"
-summary(results.olog)
-"Alternative model with fixed thresholds"
+
 summary(results.ologalt)
 ```
+Could be applied to criminal justice cases, with high certainty of guilt that is given by threshold values
 
 ### Likelihoodratio-Test to compare unrestricted and restricted model
 ```{r}
@@ -404,8 +424,5 @@ library("lmtest")
 
 lrtest(results.olog,results.ologalt)
 ```
-
-
-
-=======
-End
+Unrestricted model clearly has better estimates, however restricted model instrumentalises high threshold value for practical decision-making  
+$\implies$ Trade-off between quality of estimates and certainty for conviction
